@@ -96,6 +96,7 @@ def BinOp(formula):
     not_associativity = {ast.Sub, ast.Div, ast.Mod, ast.LShift, ast.RShift}
 
     # 割り算は処理がめんどくさいのではじく
+    # ToDo: 自明にintかdoubleな場合を分ける
     if type(op) == ast.Div:
         return f"double({left_eval}) / double({right_eval})"
     elif type(op) == ast.FloorDiv:
@@ -183,7 +184,37 @@ def Compare(formula):
     return result
 
 
+def Attribute(attr):
+    value, attr, ctx = cpp_eval(attr.value), attr.attr, attr.ctx
+
+    # 特殊なケースをはじく
+    # 今のところ、特殊なケースを知らない
+
+    return f"{value}.{attr}"
+
+
+def IfExp(exp):
+    test, body, orelse = exp.test, exp.body, exp.orelse
+    test_eval, body_eval, orelse_eval = cpp_eval(test), cpp_eval(body), cpp_eval(orelse)
+    # それぞれの要素について、優先順位が三項演算子以下か確認し、そうなら()をつける
+    # 三項演算子の優先順位は2
+    if priority(test) <= 2:
+        test_eval = f"({test_eval})"
+    if priority(body) <= 2:
+        body_eval = f"({body_eval})"
+    if priority(orelse) <= 2:
+        orelse_eval = f"({orelse_eval})"
+
+    return f"{test_eval} ? {body_eval} : {orelse_eval}"
+
+
+def NamedExpr(exp):
+    target, value = cpp_eval(exp.target), cpp_eval(exp.value)
+    return f"({target}={value})"
+
+
 def cpp_eval(formula):
+    # 式が変数か定数の場合
     if type(formula) in (ast.Constant, ast.Name):
         return Const_Name(formula)
 
@@ -198,3 +229,12 @@ def cpp_eval(formula):
 
     elif type(formula) == ast.Compare:
         return Compare(formula)
+
+    elif type(formula) == ast.Attribute:
+        return Attribute(formula)
+
+    elif type(formula) == ast.IfExp:
+        return IfExp(formula)
+
+    elif type(formula) == ast.NamedExpr:
+        return NamedExpr(formula)
