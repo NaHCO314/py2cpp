@@ -19,6 +19,11 @@ vector<string> py_split_nostr(string s) {
  
     return result;
 }
+string py_input(){
+string str;
+getline(cin, str);
+return str;
+}
 
 auto py_mod(auto n, auto m){
   return ((n < 0) ^ (m < 0))? m + fmod(n, m) : fmod(n, m);
