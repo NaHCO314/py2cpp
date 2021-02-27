@@ -19,6 +19,25 @@ vector<string> py_split_nostr(string s) {
  
     return result;
 }
+vector<int> py_int_split(string s) {
+    int first = 0, last = s.find_first_of(" ");
+    vector<int> result = {};
+    while(first < s.size()){
+        string t(s, first, last-first);
+        if(t != ""){         
+ result.push_back(stoi(t));
+        }
+        first = last + 1;
+        last = s.find_first_of(" ", first);
+        if(last == string::npos) {
+            last = s.size();
+        }
+    }
+ 
+    return result;
+}
+
+
 string py_input(){
 string str;
 getline(cin, str);
