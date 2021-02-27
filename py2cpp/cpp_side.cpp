@@ -38,6 +38,8 @@ vector<int> py_int_split(string s) {
 }
 
 
+template<typename T> T py_index(vector<T> vec, int i){return i >= 0 ? vec[i] : vec[vec.size()+i];}
+
 string py_input(){
 string str;
 getline(cin, str);
